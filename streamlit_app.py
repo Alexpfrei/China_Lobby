@@ -9,6 +9,10 @@ with open(file_path, "r") as file:
 
 # Flatten JSON data
 df = pd.json_normalize(data, sep="_")
+df["filing_year"] = df["filing_year"].astype(int)
+
+
+
 
 # Handle missing values safely
 def extract_lobbyists(activity_list):
@@ -56,7 +60,8 @@ columns_to_display = [
 ]
 
 df_filtered = df[columns_to_display]
-
+# Ensure the year column remains an integer when displayed in Streamlit
+df_filtered["filing_year"] = df_filtered["filing_year"].astype(int)
 # Streamlit UI
 st.title("Lobbying Data Explorer")
 

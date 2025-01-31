@@ -25,13 +25,15 @@ def extract_covered_positions(activity_list):
     """Extract and clean covered positions from lobbyists."""
     if isinstance(activity_list, list):
         positions = [
-            lobbyist.get("covered_position", "").strip()
+            str(lobbyist.get("covered_position", "")).strip()  # Convert to string before stripping
             for activity in activity_list if 'lobbyists' in activity and isinstance(activity["lobbyists"], list)
             for lobbyist in activity["lobbyists"]
+            if lobbyist.get("covered_position")  # Ensure it's not None
         ]
         # Remove empty strings and "N/A"
         return sorted(set([pos for pos in positions if pos and pos.lower() != "n/a"]))
     return []
+
 
 df["registrant_type"] = df["registrant_description"].fillna("Unknown")
 df["foreign_entities"] = df["foreign_entities"].apply(lambda x: [e["name"] for e in x] if isinstance(x, list) else [])

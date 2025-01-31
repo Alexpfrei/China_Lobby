@@ -10,6 +10,8 @@ with open(file_path, "r") as file:
 # Flatten JSON data
 df = pd.json_normalize(data, sep="_")
 df["filing_year"] = df["filing_year"].astype(int)
+df["filing_year"] = df["filing_year"].astype(str)
+
 
 
 

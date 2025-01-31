@@ -22,19 +22,24 @@ def extract_lobbyists(activity_list):
     return []
 
 def extract_covered_positions(activity_list):
-    """Extract covered positions from lobbyists."""
+    """Extract and clean covered positions from lobbyists."""
     if isinstance(activity_list, list):
-        return [
-            lobbyist.get("covered_position", "N/A")
+        positions = [
+            lobbyist.get("covered_position", "").strip()
             for activity in activity_list if 'lobbyists' in activity and isinstance(activity["lobbyists"], list)
             for lobbyist in activity["lobbyists"]
         ]
+        # Remove empty strings and "N/A"
+        return sorted(set([pos for pos in positions if pos and pos.lower() != "n/a"]))
     return []
 
 df["registrant_type"] = df["registrant_description"].fillna("Unknown")
 df["foreign_entities"] = df["foreign_entities"].apply(lambda x: [e["name"] for e in x] if isinstance(x, list) else [])
 df["lobbyists"] = df["lobbying_activities"].apply(extract_lobbyists)
 df["covered_positions"] = df["lobbying_activities"].apply(extract_covered_positions)
+
+# Convert year to integer to remove comma formatting
+df["filing_year"] = df["filing_year"].astype(int)
 
 # Select key columns
 columns_to_display = [
@@ -86,7 +91,6 @@ st.dataframe(df_filtered)
 st.subheader("Lobbying Registrations Per Year")
 st.bar_chart(df_filtered["filing_year"].value_counts())
 
-
 # Display Lobbyists' Covered Positions
 st.subheader("Covered Positions of Lobbyists")
 st.write(df_filtered.explode("covered_positions")["covered_positions"].dropna().value_counts())
@@ -112,7 +116,7 @@ if lobbyist_filter:
 
     # Show covered positions
     st.subheader("Past Covered Positions")
-    covered_positions = set([pos for sublist in lobbyist_info["covered_positions"] for pos in sublist if pos not in ["N/A", ""]])
+    covered_positions = set([pos for sublist in lobbyist_info["covered_positions"] for pos in sublist])
     if covered_positions:
         st.write(", ".join(covered_positions))
     else:

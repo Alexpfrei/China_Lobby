@@ -63,7 +63,7 @@ columns_to_display = [
 
 df_filtered = df[columns_to_display]
 # Ensure the year column remains an integer when displayed in Streamlit
-df_filtered["filing_year"] = df_filtered["filing_year"].astype(int)
+df_filtered["filing_year"] = df_filtered["filing_year"].astype(str)
 # Streamlit UI
 st.title("Lobbying Data Explorer")
 
